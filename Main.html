@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What lyric is it?</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #121212; /* Fondo oscuro para resaltar el efecto neón */
+            color: #fff; /* Color de texto blanco */
+        }
+        h1 {
+            font-size: 3em;
+            text-shadow: 0 0 5px #e00bce, 0 0 10px #e00bce, 0 0 15px #e00bce; /* Efecto neón verde */
+            margin-bottom: 20px;
+        }
+        #correcto, #incorrecto {
+            display: none;
+            margin-top: 20px;
+        }
+        img {
+            width: 300px; /* Ajusta el tamaño de la imagen según sea necesario */
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #e00bce; /* Borde verde */
+            border-radius: 5px;
+            transition: all 0.3s ease; /* Transición suave */
+        }
+        input:hover {
+            animation: pulse 0.5s infinite; /* Efecto de parpadeo */
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e00bce; /* Color de fondo inicial */
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Transición suave */
+        }
+        button.correct {
+            background-color: #28a745; /* Verde para respuesta correcta */
+        }
+        button.incorrect {
+            background-color: #dc3545; /* Rojo para respuesta incorrecta */
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Taylor Swift Game Ale's Version</h1>
+    <p id="lyric"></p>
+    
+    <input type="text" id="album" placeholder="Album" />
+    <input type="text" id="track_title" placeholder="Título de la canción" />
+    <button id="verificarBtn" onclick="verificar()">Verificar</button>
+
+    <div id="correcto">
+        <p>¡Correcto!</p>
+        <img src="https://cloudfront-eu-central-1.images.arcpublishing.com/prisaradiolos40/6PHLG6TGMFJ7VBUOEY7IGC4JBE.jpg" alt="Correcto">
+    </div>
+    
+    <div id="incorrecto">
+        <p>¡Incorrecto!</p>
+        <img src="https://haahilfm.com/wp-content/uploads/2019/12/1-TAYLOR.jpg" alt="Incorrecto">
+    </div>
+
+    <script>
+        const data = [
+            // Aquí debes agregar los datos del CSV en formato de objeto
+            { album: "Taylor Swift", track_title: "Tim McGraw", lyric: "He said the way my blue eyes shined" },
+            { album: "Taylor Swift", track_title: "Picture To Burn", lyric: "State the obvious, I didn't get my perfect fantasy" },
+            { album: "Taylor Swift", track_title: "Teardrops On My Guitar", lyric: "Drew looks at me" },
+            { album: "Taylor Swift", track_title: "Tim McGraw", lyric: "When you think Tim McGraw, I hope you think my favorite song" },
+            { album: "Taylor Swift", track_title: "Tim McGraw", lyric: "You said the way my blue eyes shined" },
+            { album: "Taylor Swift", track_title: "Tim McGraw", lyric: "But when you think happiness, I hope you think that little black dress" },
+            { album: "Taylor Swift", track_title: "Our Song", lyric: "I grabbed a pen and an old napkin and I wrote down our song" },
+            { album: "Taylor Swift", track_title: "Teardrops on My Guitar", lyric: "Drew looks at me, I fake a smile so he won't see" },
+            { album: "Fearless", track_title: "Love Story", lyric: "Romeo, take me somewhere we can be alone" },
+            { album: "Fearless", track_title: "Love Story", lyric: "You'll be the prince and I'll be the princess" },
+            { album: "Fearless", track_title: "Love Story", lyric: "It's a love story, baby, just say, 'Yes'" },
+            { album: "Fearless", track_title: "You Belong With Me", lyric: "If you can see that I'm the one who understands you" },
+            { album: "Fearless", track_title: "White Horse", lyric: "I'm not a princess, this ain't a fairy tale" },
+            { album: "Speak Now", track_title: "Back to December", lyric: "Maybe this is wishful thinkin'" },
+            { album: "Speak Now", track_title: "Back to December", lyric: "But if we loved again, I swear I'd love you right" },
+            { album: "Speak Now", track_title: "Back to December", lyric: "It turns out freedom ain't nothin' but missin' you" },
+            { album: "Speak Now", track_title: "Enchanted", lyric: "This night is sparkling, don't you let it go" },
+            { album: "Speak Now", track_title: "Mine", lyric: "You made a rebel of a careless man's careful daughter" },
+            { album: "Red", track_title: "All Too Well", lyric: "You kept me like a secret, but I kept you like an oath" },
+            { album: "Red", track_title: "All Too Well", lyric: "You call me up again just to break me like a promise" },
+            { album: "Red", track_title: "All Too Well", lyric: "Maybe we got lost in translation" },
+            { album: "Red", track_title: "I Knew You Were Trouble", lyric: "I knew you were trouble when you walked in" },
+            { album: "Red", track_title: "22", lyric: "We're happy, free, confused, and lonely at the same time" },
+            { album: "1989", track_title: "Blank Space", lyric: "So it's gonna be forever or it's gonna go down in flames" },
+            { album: "1989", track_title: "Blank Space", lyric: "Wait, the worst is yet to come" },
+            { album: "1989", track_title: "Blank Space", lyric: "Boys only want love if it's torture" },
+            { album: "1989", track_title: "Style", lyric: "You got that James Dean daydream look in your eye" },
+            { album: "1989", track_title: "Shake It Off", lyric: "Cause the players gonna play, play, play" },
+            { album: "Reputation", track_title: "Delicate", lyric: "This ain't for the best, my reputation's never been worse" },
+            { album: "Reputation", track_title: "Delicate", lyric: "My baby’s fly like a jet stream" },
+            { album: "Reputation", track_title: "Delicate", lyric: "We can't make any promises now, can we, babe?" },
+            { album: "Reputation", track_title: "Look What You Made Me Do", lyric: "I got a list of names, and yours is in red, underlined" },
+            { album: "Reputation", track_title: "Gorgeous", lyric: "You make me so happy, it turns back to sad" },
+            { album: "Lover", track_title: "Lover", lyric: "Can I go where you go?" },
+            { album: "Lover", track_title: "Lover", lyric: "Forever and ever, take me out and take me home" },
+            { album: "Lover", track_title: "Lover", lyric: "My heart's been borrowed and yours has been blue" },
+            { album: "Lover", track_title: "You Need to Calm Down", lyric: "And we see you over there on the internet" },
+            { album: "Lover", track_title: "Paper Rings", lyric: "I like shiny things, but I'd marry you with paper rings" },
+            { album: "Folklore", track_title: "Cardigan", lyric: "I knew you'd linger like a tattoo kiss" },
+            { album: "Folklore", track_title: "Cardigan", lyric: "You drew stars around my scars" },
+            { album: "Folklore", track_title: "Cardigan", lyric: "And when I felt like I was an old cardigan" },
+            { album: "Folklore", track_title: "The 1", lyric: "I guess you never know, never know" },
+            { album: "Folklore", track_title: "Exile", lyric: "I think I've seen this film before, and I didn't like the ending" },
+            { album: "Evermore", track_title: "Willow", lyric: "The more that you say, the less I know" },
+            { album: "Evermore", track_title: "Willow", lyric: "Wherever you stray, I follow" },
+            { album: "Evermore", track_title: "Willow", lyric: "Life was a willow and it bent right to your wind" },
+            { album: "Evermore", track_title: "Champagne Problems", lyric: "Your heart was glass, I dropped it" },
+            { album: "Evermore", track_title: "Gold Rush", lyric: "I don't like a gold rush" },
+            { album: "Midnights", track_title: "Anti-Hero", lyric: "It's me, hi, I'm the problem, it's me" },
+            { album: "Midnights", track_title: "Anti-Hero", lyric: "I'll stare directly at the sun, but never in the mirror" },
+            { album: "Midnights", track_title: "Anti-Hero", lyric: "Did you hear my covert narcissism I disguise as altruism?" },
+            { album: "Midnights", track_title: "Snow on the Beach", lyric: "It’s like snow at the beach, weird but beautiful" },
+            { album: "Midnights", track_title: "Karma", lyric: "Karma is my boyfriend, karma is a god" },
+            // Agrega más datos según sea necesario
+        ];
+
+        function obtenerLetraAleatoria() {
+            const randomIndex = Math.floor(Math.random() * data.length);
+            return data[randomIndex];
+        }
+
+        function mostrarLetra() {
+            const { album, track_title, lyric } = obtenerLetraAleatoria();
+            document.getElementById("lyric").innerText = lyric;
+            document.getElementById("album").value = "";
+            document.getElementById("track_title").value = "";
+            return { album, track_title };
+        }
+
+        let currentData = mostrarLetra();
+
+        function verificar() {
+            const albumInput = document.getElementById("album").value.trim();
+            const trackTitleInput = document.getElementById("track_title").value.trim();
+            const verificarBtn = document.getElementById("verificarBtn");
+
+            if (!albumInput || !trackTitleInput) {
+                alert ("Por favor, completa ambos campos.");
+                return;
+            }
+
+            if (albumInput === currentData.album && trackTitleInput === currentData.track_title) {
+                document.getElementById("correcto").style.display = "block";
+                document.getElementById("incorrecto").style.display = "none";
+                verificarBtn.classList.add("correct");
+                verificarBtn.classList.remove("incorrect");
+                setTimeout(() => {
+                    currentData = mostrarLetra();
+                    document.getElementById("correcto").style.display = "none";
+                    verificarBtn.classList.remove("correct");
+                }, 2000);
+            } else {
+                document.getElementById("incorrecto").style.display = "block";
+                document.getElementById("correcto").style.display = "none";
+                verificarBtn.classList.add("incorrect");
+                verificarBtn.classList.remove("correct");
+                setTimeout(() => {
+                    document.getElementById("incorrecto").style.display = "none";
+                    verificarBtn.classList.remove("incorrect");
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
